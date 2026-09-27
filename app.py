@@ -3,11 +3,14 @@ from flask import Flask, request
 from database import db
 from validators import validate_task_data
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasks.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    if test_config:
+        app.config.update(test_config)
 
     db.init_app(app)
 
