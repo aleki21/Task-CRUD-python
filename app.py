@@ -84,6 +84,13 @@ def create_app():
             "completed": task.completed
         }, 200
 
+    @app.errorhandler(404)
+    def handle_not_found(error):
+        return {
+            "error": "Not found",
+            "message": "The requested resource does not exist"
+        }, 404
+
     return app
 
 
