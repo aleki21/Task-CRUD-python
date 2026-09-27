@@ -193,3 +193,30 @@ def test_create_task_rejects_long_description(client):
     assert data["details"]["description"] == (
         "Description must not exceed 500 characters"
     )
+
+def test_create_task_rejects_invalid_json(client):
+    response = client.post(
+        "/tasks",
+        data='{"title": "Learn Flask"',
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["error"] == "Invalid JSON"
+    assert data["message"] == "Request body must contain valid JSON"
+
+def test_create_task_rejects_non_object_json(client):
+    response = client.post(
+        "/tasks",
+        json=["Learn Flask"],
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["error"] == "Validation failed"
+    assert data["details"]["body"] == "Request body must be a JSON object"
