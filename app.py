@@ -54,6 +54,36 @@ def create_app():
             "completed": task.completed
         }, 201
 
+    @app.route("/tasks", methods=["GET"])
+    def get_tasks():
+        tasks = Task.query.all()
+
+        return [
+            {
+                "id": task.id,
+                "title": task.title,
+                "description": task.description,
+                "completed": task.completed
+            }
+            for task in tasks
+        ], 200
+
+    @app.route("/tasks/<int:task_id>", methods=["GET"])
+    def get_task(task_id):
+        task = db.session.get(Task, task_id)
+
+        if task is None:
+            return {
+                "error": "Task not found"
+            }, 404
+
+        return {
+            "id": task.id,
+            "title": task.title,
+            "description": task.description,
+            "completed": task.completed
+        }, 200
+
     return app
 
 
