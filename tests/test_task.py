@@ -220,3 +220,74 @@ def test_create_task_rejects_non_object_json(client):
 
     assert data["error"] == "Validation failed"
     assert data["details"]["body"] == "Request body must be a JSON object"
+
+
+def test_update_task(client):
+    create_response = client.post(
+        "/tasks",
+        json={
+            "title": "Learn Flask",
+            "description": "Practice REST APIs",
+        },
+    )
+
+    task_id = create_response.get_json()["id"]
+
+    response = client.put(
+        f"/tasks/{task_id}",
+        json={
+            "title": "Master Flask",
+            "description": "Build production-ready APIs",
+            "completed": True,
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+
+    assert data["id"] == task_id
+    assert data["title"] == "Master Flask"
+    assert data["description"] == "Build production-ready APIs"
+    assert data["completed"] is True
+
+def test_update_nonexistent_task(client):
+    response = client.put(
+        "/tasks/999",
+        json={
+            "title": "Updated task",
+            "description": "This task does not exist",
+            "completed": True,
+        },
+    )
+
+    assert response.status_code == 404
+
+    data = response.get_json()
+
+    assert data["error"] == "Task not found"
+
+
+def test_update_task_rejects_invalid_data(client):
+    create_response = client.post(
+        "/tasks",
+        json={
+            "title": "Learn Flask",
+        },
+    )
+
+    task_id = create_response.get_json()["id"]
+
+    response = client.put(
+        f"/tasks/{task_id}",
+        json={
+            "title": "",
+        },
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["error"] == "Validation failed"
+    assert data["details"]["title"] == "Title cannot be empty"
