@@ -321,3 +321,14 @@ def test_delete_nonexistent_task(client):
     data = response.get_json()
 
     assert data["error"] == "Task not found"
+
+
+def test_unknown_route_returns_json_404(client):
+    response = client.get("/does-not-exist")
+
+    assert response.status_code == 404
+
+    data = response.get_json()
+
+    assert data["error"] == "Not found"
+    assert data["message"] == "The requested resource does not exist"
