@@ -291,3 +291,33 @@ def test_update_task_rejects_invalid_data(client):
 
     assert data["error"] == "Validation failed"
     assert data["details"]["title"] == "Title cannot be empty"
+
+
+def test_delete_task(client):
+    create_response = client.post(
+        "/tasks",
+        json={
+            "title": "Task to delete",
+            "description": "This task should be removed",
+        },
+    )
+
+    task_id = create_response.get_json()["id"]
+
+    response = client.delete(f"/tasks/{task_id}")
+
+    assert response.status_code == 204
+    assert response.data == b""
+
+    get_response = client.get(f"/tasks/{task_id}")
+
+    assert get_response.status_code == 404
+
+def test_delete_nonexistent_task(client):
+    response = client.delete("/tasks/999")
+
+    assert response.status_code == 404
+
+    data = response.get_json()
+
+    assert data["error"] == "Task not found"
