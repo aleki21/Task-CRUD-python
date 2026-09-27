@@ -22,7 +22,13 @@ def create_app():
 
     @app.route("/tasks", methods=["POST"])
     def create_task():
-        data = request.get_json()
+        data = request.get_json(silent=True)
+
+        if data is None:
+            return {
+                "error": "Invalid JSON",
+                "message": "Request body must contain valid JSON"
+            }, 400
 
         errors = validate_task_data(data)
 
