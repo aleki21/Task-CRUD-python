@@ -153,6 +153,15 @@ def create_app(test_config=None):
             "message": "The HTTP method is not supported for this endpoint"
         }, 405
 
+    @app.errorhandler(500)
+    def handle_internal_error(error):
+        db.session.rollback()
+
+        return {
+            "error": "Internal server error",
+            "message": "An unexpected error occurred"
+        }, 500
+
     return app
 
 
