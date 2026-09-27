@@ -342,3 +342,15 @@ def test_invalid_task_id_returns_json_404(client):
 
     assert data["error"] == "Not found"
     assert data["message"] == "The requested resource does not exist"
+
+def test_unsupported_method_returns_json_405(client):
+    response = client.delete("/tasks")
+
+    assert response.status_code == 405
+
+    data = response.get_json()
+
+    assert data["error"] == "Method not allowed"
+    assert data["message"] == (
+        "The HTTP method is not supported for this endpoint"
+    )

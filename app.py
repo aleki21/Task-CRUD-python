@@ -146,6 +146,13 @@ def create_app(test_config=None):
             "message": "The requested resource does not exist"
         }, 404
 
+    @app.errorhandler(405)
+    def handle_method_not_allowed(error):
+        return {
+            "error": "Method not allowed",
+            "message": "The HTTP method is not supported for this endpoint"
+        }, 405
+
     return app
 
 
