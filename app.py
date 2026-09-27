@@ -84,6 +84,44 @@ def create_app():
             "completed": task.completed
         }, 200
 
+    @app.route("/tasks/<int:task_id>", methods=["PUT"])
+    def update_task(task_id):
+        task = db.session.get(Task, task_id)
+
+        if task is None:
+            return {
+                "error": "Task not found"
+            }, 404
+
+        data = request.get_json(silent=True)
+
+        if data is None:
+            return {
+                "error": "Invalid JSON",
+                "message": "Request body must contain valid JSON"
+            }, 400
+
+        errors = validate_task_data(data)
+
+        if errors:
+            return {
+                "error": "Validation failed",
+                "details": errors
+            }, 400
+
+        task.title = data["title"].strip()
+        task.description = data.get("description")
+        task.completed = data.get("completed", False)
+
+        db.session.commit()
+
+        return {
+            "id": task.id,
+            "title": task.title,
+            "description": task.description,
+            "completed": task.completed
+        }, 200
+
     @app.errorhandler(404)
     def handle_not_found(error):
         return {
