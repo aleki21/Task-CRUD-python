@@ -122,6 +122,20 @@ def create_app():
             "completed": task.completed
         }, 200
 
+    @app.route("/tasks/<int:task_id>", methods=["DELETE"])
+    def delete_task(task_id):
+        task = db.session.get(Task, task_id)
+
+        if task is None:
+            return {
+                "error": "Task not found"
+            }, 404
+
+        db.session.delete(task)
+        db.session.commit()
+
+        return "", 204
+
     @app.errorhandler(404)
     def handle_not_found(error):
         return {
