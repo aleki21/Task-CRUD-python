@@ -160,3 +160,36 @@ def test_create_task_rejects_invalid_completed_type(client):
     data = response.get_json()
 
     assert data["details"]["completed"] == "Completed must be a boolean"
+
+
+def test_create_task_rejects_long_title(client):
+    response = client.post(
+        "/tasks",
+        json={
+            "title": "A" * 101,
+        },
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["details"]["title"] == "Title must not exceed 100 characters"
+
+
+def test_create_task_rejects_long_description(client):
+    response = client.post(
+        "/tasks",
+        json={
+            "title": "Learn Flask",
+            "description": "A" * 501,
+        },
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["details"]["description"] == (
+        "Description must not exceed 500 characters"
+    )
