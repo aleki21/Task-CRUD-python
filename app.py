@@ -1,7 +1,7 @@
 from flask import Flask, request
 
 from database import db
-
+from validators import validate_task_data
 
 def create_app():
     app = Flask(__name__)
@@ -24,8 +24,16 @@ def create_app():
     def create_task():
         data = request.get_json()
 
+        errors = validate_task_data(data)
+
+        if errors:
+            return {
+                "error": "Validation failed",
+                "details": errors
+            }, 400
+
         task = Task(
-            title=data["title"],
+            title=data["title"].strip(),
             description=data.get("description"),
             completed=data.get("completed", False)
         )
