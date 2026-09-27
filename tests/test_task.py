@@ -40,3 +40,30 @@ def test_create_task(client):
     assert data["title"] == "Learn Flask"
     assert data["description"] == "Practice REST APIs"
     assert data["completed"] is False
+
+def test_get_tasks(client):
+    client.post(
+        "/tasks",
+        json={
+            "title": "Learn Flask",
+            "description": "Practice REST APIs",
+        },
+    )
+
+    client.post(
+        "/tasks",
+        json={
+            "title": "Write tests",
+            "description": "Practice pytest",
+        },
+    )
+
+    response = client.get("/tasks")
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+
+    assert len(data) == 2
+    assert data[0]["title"] == "Learn Flask"
+    assert data[1]["title"] == "Write tests"
