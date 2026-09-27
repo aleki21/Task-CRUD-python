@@ -99,3 +99,64 @@ def test_get_nonexistent_task(client):
     data = response.get_json()
 
     assert data["error"] == "Task not found"
+
+def test_create_task_requires_title(client):
+    response = client.post(
+        "/tasks",
+        json={
+            "description": "A task without a title",
+        },
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["error"] == "Validation failed"
+    assert data["details"]["title"] == "Title is required"
+
+
+def test_create_task_rejects_empty_title(client):
+    response = client.post(
+        "/tasks",
+        json={
+            "title": "   ",
+        },
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["details"]["title"] == "Title cannot be empty"
+
+
+def test_create_task_rejects_invalid_title_type(client):
+    response = client.post(
+        "/tasks",
+        json={
+            "title": 123,
+        },
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["details"]["title"] == "Title must be a string"
+
+
+def test_create_task_rejects_invalid_completed_type(client):
+    response = client.post(
+        "/tasks",
+        json={
+            "title": "Learn Flask",
+            "completed": "yes",
+        },
+    )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["details"]["completed"] == "Completed must be a boolean"
